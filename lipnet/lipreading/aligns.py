@@ -8,7 +8,8 @@ class Align(object):
     def from_file(self, path):
         with open(path, 'r') as f:
             lines = f.readlines()
-        align = [(int(y[0])/1000, int(y[1])/1000, y[2]) for y in [x.strip().split(" ") for x in lines]]
+        align = [(int(float(y[0])), int(float(y[1])), y[2]) for y in [x.strip().split(" ") for x in lines]]
+        # align = [(int(y[0])/1000, int(y[1])/1000, y[2]) for y in [x.strip().split(" ") for x in lines]]
         self.build(align)
         return self
 
@@ -32,6 +33,8 @@ class Align(object):
         return self.label_func(sentence)
 
     def get_padded_label(self, label):
+        print "self.absolute_max_string_len", self.absolute_max_string_len
+        print "len(label)", len(label)
         padding = np.ones((self.absolute_max_string_len-len(label))) * -1
         return np.concatenate((np.array(label), padding), axis=0)
 

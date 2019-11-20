@@ -8,4 +8,5 @@ def ctc_lambda_func(args):
     # tend to be garbage:
     # y_pred = y_pred[:, 2:, :]
     y_pred = y_pred[:, :, :]
+    print "computing ctc_lambda_func"
     return K.ctc_batch_cost(labels, y_pred, input_length, label_length)

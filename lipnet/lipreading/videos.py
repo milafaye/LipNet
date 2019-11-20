@@ -105,14 +105,20 @@ class VideoAugmenter(object):
 
 class Video(object):
     def __init__(self, vtype='mouth', face_predictor_path=None):
+        print "initalizing video object"
         if vtype == 'face' and face_predictor_path is None:
+            print "vtype == 'face' and face_predictor_path is None"
             raise AttributeError('Face video need to be accompanied with face predictor')
         self.face_predictor_path = face_predictor_path
         self.vtype = vtype
 
     def from_frames(self, path):
-        frames_path = sorted([os.path.join(path, x) for x in os.listdir(path)])
+        print "getting video from frames"
+        frames_path_all = sorted([os.path.join(path, x) for x in os.listdir(path)])
+        frames_path = sorted([x for x in frames_path_all if os.path.splitext(x)[1] == ".png" ])
         frames = [ndimage.imread(frame_path) for frame_path in frames_path]
+        # frames_path = sorted([os.path.join(path, x) for x in os.listdir(path)])
+        # frames = [ndimage.imread(frame_path) for frame_path in frames_path]
         self.handle_type(frames)
         return self
 
@@ -127,10 +133,12 @@ class Video(object):
 
     def handle_type(self, frames):
         if self.vtype == 'mouth':
+            print "handle_type: frames"
             self.process_frames_mouth(frames)
         elif self.vtype == 'face':
             self.process_frames_face(frames)
         else:
+            print "Video type not found"
             raise Exception('Video type not found')
 
     def process_frames_face(self, frames):
@@ -142,6 +150,8 @@ class Video(object):
         self.set_data(mouth_frames)
 
     def process_frames_mouth(self, frames):
+        print "process_frames_mouth"
+
         self.face = np.array(frames)
         self.mouth = np.array(frames)
         self.set_data(frames)
@@ -197,6 +207,7 @@ class Video(object):
         return frames
 
     def set_data(self, frames):
+        print "set_data"
         data_frames = []
         for frame in frames:
             frame = frame.swapaxes(0,1) # swap width and height to form format W x H x C

@@ -55,6 +55,7 @@ class BasicGenerator(keras.callbacks.Callback):
         # Set steps to dataset size if not set
         self.steps_per_epoch  = self.default_training_steps if self.steps_per_epoch is None else self.steps_per_epoch
         self.validation_steps = self.default_validation_steps if self.validation_steps is None else self.validation_steps
+        print "building epoch", "self.steps_per_epoch=",self.steps_per_epoch, "self.validation_steps=", self.validation_steps
         return self
 
     @property
@@ -86,10 +87,12 @@ class BasicGenerator(keras.callbacks.Callback):
                 if os.path.isfile(video_path):
                     video = Video(self.vtype, self.face_predictor_path).from_video(video_path)
                 else:
+                    print "loading face from frames", self.vtype
                     video = Video(self.vtype, self.face_predictor_path).from_frames(video_path)
             except AttributeError as err:
                 raise err
             except:
+                print "Error loading video from dataset ", self.vtype, self.dataset_path
                 print "Error loading video: "+video_path
                 continue
             if K.image_data_format() == 'channels_first' and video.data.shape != (self.img_c,self.frames_n,self.img_w,self.img_h):
@@ -161,6 +164,8 @@ class BasicGenerator(keras.callbacks.Callback):
         input_length = np.array(input_length)
         Y_data = np.array(Y_data)
         X_data = np.array(X_data).astype(np.float32) / 255 # Normalize image data to [0,1], TODO: mean normalization over training data
+        print "X_data", np.shape(X_data)
+        print "Y_data", np.shape(Y_data)
 
         inputs = {'the_input': X_data,
                   'the_labels': Y_data,
@@ -176,7 +181,7 @@ class BasicGenerator(keras.callbacks.Callback):
     def next_train(self):
         r = np.random.RandomState(self.random_seed)
         while 1:
-            # print "SI: {}, SE: {}".format(self.cur_train_index.value, self.shared_train_epoch.value)
+            print "SI: {}, SE: {}".format(self.cur_train_index.value, self.shared_train_epoch.value)
             with self.cur_train_index.get_lock(), self.shared_train_epoch.get_lock():
                 cur_train_index = self.cur_train_index.value
                 self.cur_train_index.value += self.minibatch_size
